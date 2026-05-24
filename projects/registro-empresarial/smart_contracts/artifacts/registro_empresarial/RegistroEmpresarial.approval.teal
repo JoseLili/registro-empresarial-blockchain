@@ -1,0 +1,1997 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 22
+    bytecblock "empresas" 0x0026 0x35c2b378 "total_empresas" "registradores" "admin" 0x151f7c75
+    // smart_contracts/registro_empresarial/contract.py:59
+    // class RegistroEmpresarial(ARC4Contract):
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@19
+    pushbytess 0xec63d226 0xbcc614d4 0x53fd0987 0xecb58e9d 0x37c7d113 0x6e294993 0x9c10db30 0x4c4c85e8 0xf1b8f860 0x03dc627f 0xdca3b0f7 0x50851175 0x9cbba946 // method "agregar_registrador(address)void", method "remover_registrador(address)void", method "registrar_empresa(string,string,string,string,string,string,uint64,string)void", method "registrar_rfc(string,string)void", method "actualizar_razon_social(string,string)void", method "actualizar_representante_legal(string,string)void", method "actualizar_domicilio(string,string)void", method "actualizar_reparto_acciones(string,string)void", method "actualizar_permiso_uso_nombre(string,string)void", method "cambiar_estatus(string,string)void", method "consultar_empresa(string)(string,string,string,string,string,string,string,uint64,string)", method "es_registrador(address)bool", method "obtener_total()uint64"
+    txna ApplicationArgs 0
+    match agregar_registrador remover_registrador registrar_empresa registrar_rfc actualizar_razon_social actualizar_representante_legal actualizar_domicilio actualizar_reparto_acciones actualizar_permiso_uso_nombre cambiar_estatus consultar_empresa es_registrador obtener_total
+    err
+
+main_create_NoOp@19:
+    // smart_contracts/registro_empresarial/contract.py:59
+    // class RegistroEmpresarial(ARC4Contract):
+    pushbytes 0x8bc16ebd // method "crear()void"
+    txna ApplicationArgs 0
+    match crear
+    err
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.crear[routing]() -> void:
+crear:
+    // smart_contracts/registro_empresarial/contract.py:72
+    // self.admin.value = arc4.Address(Txn.sender)
+    bytec 5 // "admin"
+    txn Sender
+    app_global_put
+    // smart_contracts/registro_empresarial/contract.py:73
+    // self.total_empresas.value = UInt64(0)
+    bytec_3 // "total_empresas"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/registro_empresarial/contract.py:69
+    // @arc4.abimethod(create="require")
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.agregar_registrador[routing]() -> void:
+agregar_registrador:
+    // smart_contracts/registro_empresarial/contract.py:77
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/registro_empresarial/contract.py:80
+    // arc4.Address(Txn.sender) == self.admin.value
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    // smart_contracts/registro_empresarial/contract.py:79-81
+    // assert (
+    //     arc4.Address(Txn.sender) == self.admin.value
+    // ), "Solo el admin puede agregar registradores"
+    assert // Solo el admin puede agregar registradores
+    // smart_contracts/registro_empresarial/contract.py:82
+    // self.registradores[cuenta] = arc4.Bool(True)
+    bytec 4 // "registradores"
+    dig 1
+    concat
+    pushbytes 0x80
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:83
+    // arc4.emit(RegistradorAgregado(cuenta=cuenta))
+    pushbytes 0x2a5a05b7 // method "RegistradorAgregado(address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:77
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.remover_registrador[routing]() -> void:
+remover_registrador:
+    // smart_contracts/registro_empresarial/contract.py:85
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/registro_empresarial/contract.py:88
+    // arc4.Address(Txn.sender) == self.admin.value
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    // smart_contracts/registro_empresarial/contract.py:87-89
+    // assert (
+    //     arc4.Address(Txn.sender) == self.admin.value
+    // ), "Solo el admin puede remover registradores"
+    assert // Solo el admin puede remover registradores
+    // smart_contracts/registro_empresarial/contract.py:90
+    // assert cuenta in self.registradores, "La cuenta no es registradora"
+    bytec 4 // "registradores"
+    dig 1
+    concat
+    dup
+    box_len
+    bury 1
+    assert // La cuenta no es registradora
+    // smart_contracts/registro_empresarial/contract.py:91
+    // del self.registradores[cuenta]
+    box_del
+    pop
+    // smart_contracts/registro_empresarial/contract.py:92
+    // arc4.emit(RegistradorRemovido(cuenta=cuenta))
+    pushbytes 0x3233410c // method "RegistradorRemovido(address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:85
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.registrar_empresa[routing]() -> void:
+registrar_empresa:
+    // smart_contracts/registro_empresarial/contract.py:96
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    cover 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    dup
+    cover 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 5
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 6
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 7
+    dup
+    cover 3
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 8
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:112
+    // assert self._es_registrador(), "No autorizado para registrar empresas"
+    callsub _es_registrador
+    assert // No autorizado para registrar empresas
+    // smart_contracts/registro_empresarial/contract.py:113
+    // assert expediente not in self.empresas, "El expediente ya está registrado"
+    bytec_0 // "empresas"
+    uncover 2
+    concat
+    dup
+    cover 2
+    box_len
+    bury 1
+    !
+    assert // El expediente ya está registrado
+    // smart_contracts/registro_empresarial/contract.py:281
+    // t = tipo.native
+    extract 2 0
+    dup
+    // smart_contracts/registro_empresarial/contract.py:283
+    // t == String("S.A.")
+    pushbytes "S.A."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:284
+    // or t == String("S. de R.L.")
+    dup
+    pushbytes "S. de R.L."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:285
+    // or t == String("S.A.S.")
+    dup
+    pushbytes "S.A.S."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:286
+    // or t == String("S.C.L.")
+    dup
+    pushbytes "S.C.L."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:287
+    // or t == String("S.C.V.")
+    dup
+    pushbytes "S.C.V."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:288
+    // or t == String("S. en N.C.")
+    dup
+    pushbytes "S. en N.C."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:289
+    // or t == String("S. en C.")
+    dup
+    pushbytes "S. en C."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:290
+    // or t == String("S. en C. por A.")
+    dup
+    pushbytes "S. en C. por A."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:291
+    // or t == String("S.C.")
+    dup
+    pushbytes "S.C."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:292
+    // or t == String("A.C.")
+    dup
+    pushbytes "A.C."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bnz registrar_empresa_bool_true@12
+    // smart_contracts/registro_empresarial/contract.py:293
+    // or t == String("S.A.P.I.")
+    dup
+    pushbytes "S.A.P.I."
+    ==
+    // smart_contracts/registro_empresarial/contract.py:283-293
+    // t == String("S.A.")
+    // or t == String("S. de R.L.")
+    // or t == String("S.A.S.")
+    // or t == String("S.C.L.")
+    // or t == String("S.C.V.")
+    // or t == String("S. en N.C.")
+    // or t == String("S. en C.")
+    // or t == String("S. en C. por A.")
+    // or t == String("S.C.")
+    // or t == String("A.C.")
+    // or t == String("S.A.P.I.")
+    bz registrar_empresa_bool_false@13
+
+registrar_empresa_bool_true@12:
+    intc_2 // 1
+
+registrar_empresa_bool_merge@14:
+    // smart_contracts/registro_empresarial/contract.py:114
+    // assert self._tipo_sociedad_valido(tipo_sociedad), "Tipo de sociedad no válido"
+    assert // Tipo de sociedad no válido
+    // smart_contracts/registro_empresarial/contract.py:116-126
+    // self.empresas[expediente] = DatosEmpresa(
+    //     razon_social=razon_social,
+    //     rfc=arc4.String(""),          # Vacío hasta tramitar RFC ante el SAT
+    //     tipo_sociedad=tipo_sociedad,
+    //     estatus=arc4.String("activa"),
+    //     representante_legal=representante_legal,
+    //     domicilio_fiscal=domicilio_fiscal,
+    //     reparto_acciones=reparto_acciones,
+    //     numero_notaria=numero_notaria,
+    //     permiso_uso_nombre=permiso_uso_nombre,
+    // )
+    pushint 24
+    dig 13
+    dup
+    cover 2
+    +
+    dup
+    itob
+    extract 6 2
+    pushbytes 0x0018
+    swap
+    concat
+    swap
+    intc_1 // 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 13
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    pushint 8
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 11
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 9
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 7
+    +
+    swap
+    dig 6
+    dup
+    cover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    dig 16
+    dup
+    cover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:118
+    // rfc=arc4.String(""),          # Vacío hasta tramitar RFC ante el SAT
+    pushbytes 0x0000
+    // smart_contracts/registro_empresarial/contract.py:116-126
+    // self.empresas[expediente] = DatosEmpresa(
+    //     razon_social=razon_social,
+    //     rfc=arc4.String(""),          # Vacío hasta tramitar RFC ante el SAT
+    //     tipo_sociedad=tipo_sociedad,
+    //     estatus=arc4.String("activa"),
+    //     representante_legal=representante_legal,
+    //     domicilio_fiscal=domicilio_fiscal,
+    //     reparto_acciones=reparto_acciones,
+    //     numero_notaria=numero_notaria,
+    //     permiso_uso_nombre=permiso_uso_nombre,
+    // )
+    concat
+    dig 15
+    dup
+    cover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:120
+    // estatus=arc4.String("activa"),
+    pushbytes 0x0006616374697661
+    // smart_contracts/registro_empresarial/contract.py:116-126
+    // self.empresas[expediente] = DatosEmpresa(
+    //     razon_social=razon_social,
+    //     rfc=arc4.String(""),          # Vacío hasta tramitar RFC ante el SAT
+    //     tipo_sociedad=tipo_sociedad,
+    //     estatus=arc4.String("activa"),
+    //     representante_legal=representante_legal,
+    //     domicilio_fiscal=domicilio_fiscal,
+    //     reparto_acciones=reparto_acciones,
+    //     numero_notaria=numero_notaria,
+    //     permiso_uso_nombre=permiso_uso_nombre,
+    // )
+    concat
+    dig 14
+    concat
+    dig 12
+    concat
+    dig 10
+    concat
+    dig 7
+    concat
+    dig 6
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:127
+    // self.total_empresas.value = self.total_empresas.value + UInt64(1)
+    intc_0 // 0
+    bytec_3 // "total_empresas"
+    app_global_get_ex
+    assert // check self.total_empresas exists
+    intc_2 // 1
+    +
+    bytec_3 // "total_empresas"
+    swap
+    app_global_put
+    // smart_contracts/registro_empresarial/contract.py:134
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:129-135
+    // EmpresaRegistrada(
+    //     expediente=expediente,
+    //     razon_social=razon_social,
+    //     tipo_sociedad=tipo_sociedad,
+    //     numero_notaria=numero_notaria,
+    //     registrador=arc4.Address(Txn.sender),
+    // )
+    pushint 46
+    dig 20
+    +
+    dup
+    itob
+    extract 6 2
+    pushbytes 0x002e
+    swap
+    concat
+    swap
+    uncover 6
+    +
+    itob
+    extract 6 2
+    concat
+    uncover 4
+    concat
+    swap
+    concat
+    dig 18
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/registro_empresarial/contract.py:128-136
+    // arc4.emit(
+    //     EmpresaRegistrada(
+    //         expediente=expediente,
+    //         razon_social=razon_social,
+    //         tipo_sociedad=tipo_sociedad,
+    //         numero_notaria=numero_notaria,
+    //         registrador=arc4.Address(Txn.sender),
+    //     )
+    // )
+    pushbytes 0x02728aff // method "EmpresaRegistrada(string,string,string,uint64,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:96
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+registrar_empresa_bool_false@13:
+    intc_0 // 0
+    b registrar_empresa_bool_merge@14
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.registrar_rfc[routing]() -> void:
+registrar_rfc:
+    // smart_contracts/registro_empresarial/contract.py:140
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:146
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:147
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:148
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    swap
+    // smart_contracts/registro_empresarial/contract.py:148-149
+    // empresa = self.empresas[expediente].copy()
+    // assert empresa.rfc.native == String(""), "El RFC ya fue registrado y no puede modificarse"
+    dup
+    intc_1 // 2
+    dup
+    box_extract
+    btoi
+    dup2
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_1 // 2
+    +
+    dig 2
+    cover 2
+    box_extract
+    // smart_contracts/registro_empresarial/contract.py:149
+    // assert empresa.rfc.native == String(""), "El RFC ya fue registrado y no puede modificarse"
+    extract 2 0
+    pushbytes ""
+    ==
+    assert // El RFC ya fue registrado y no puede modificarse
+    // smart_contracts/registro_empresarial/contract.py:150
+    // empresa.rfc = rfc
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 5
+    concat
+    dig 3
+    pushint 4
+    extract_uint16
+    dig 4
+    len
+    dig 5
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    dig 5
+    +
+    dig 1
+    -
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 4
+    dig 3
+    pushint 6
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 6
+    dig 3
+    pushint 8
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 8
+    dig 3
+    pushint 10
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 10
+    dig 3
+    pushint 12
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 12
+    uncover 3
+    intc_3 // 22
+    extract_uint16
+    uncover 4
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:151
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:155
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:152-156
+    // arc4.emit(RFCRegistrado(
+    //     expediente=expediente,
+    //     rfc=rfc,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 36
+    uncover 3
+    +
+    itob
+    extract 6 2
+    pushbytes 0x0024
+    swap
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x0dac93d2 // method "RFCRegistrado(string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:140
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.actualizar_razon_social[routing]() -> void:
+actualizar_razon_social:
+    // smart_contracts/registro_empresarial/contract.py:160
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:162
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:163
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:164
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:165
+    // empresa.razon_social = valor
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 5
+    concat
+    dig 2
+    intc_1 // 2
+    extract_uint16
+    dig 3
+    len
+    dig 4
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    dig 5
+    +
+    dig 1
+    -
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 2
+    dig 2
+    pushint 4
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 4
+    dig 2
+    pushint 6
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 6
+    dig 2
+    pushint 8
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 8
+    dig 2
+    pushint 10
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 10
+    dig 2
+    pushint 12
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 12
+    uncover 2
+    intc_3 // 22
+    extract_uint16
+    uncover 4
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:166
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:171
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:167-172
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("razon_social"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    uncover 3
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    swap
+    pushint 14
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:169
+    // campo=arc4.String("razon_social"),
+    pushbytes 0x000c72617a6f6e5f736f6369616c
+    // smart_contracts/registro_empresarial/contract.py:167-172
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("razon_social"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    concat
+    swap
+    concat
+    bytec_2 // method "CampoActualizado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:160
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.actualizar_representante_legal[routing]() -> void:
+actualizar_representante_legal:
+    // smart_contracts/registro_empresarial/contract.py:174
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:176
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:177
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:178
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:179
+    // empresa.representante_legal = valor
+    dup
+    pushint 8
+    extract_uint16
+    dig 1
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 5
+    concat
+    dig 2
+    pushint 10
+    extract_uint16
+    dig 3
+    len
+    dig 4
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    dig 5
+    +
+    dig 1
+    -
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 10
+    dig 2
+    pushint 12
+    extract_uint16
+    dig 5
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 12
+    uncover 2
+    intc_3 // 22
+    extract_uint16
+    uncover 4
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:180
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:185
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:181-186
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("representante_legal"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    uncover 3
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    swap
+    pushint 21
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:183
+    // campo=arc4.String("representante_legal"),
+    pushbytes 0x0013726570726573656e74616e74655f6c6567616c
+    // smart_contracts/registro_empresarial/contract.py:181-186
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("representante_legal"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    concat
+    swap
+    concat
+    bytec_2 // method "CampoActualizado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:174
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.actualizar_domicilio[routing]() -> void:
+actualizar_domicilio:
+    // smart_contracts/registro_empresarial/contract.py:188
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:190
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:191
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:192
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:193
+    // empresa.domicilio_fiscal = valor
+    dup
+    pushint 10
+    extract_uint16
+    dig 1
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 5
+    concat
+    dig 2
+    pushint 12
+    extract_uint16
+    dig 3
+    len
+    dig 4
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    dig 5
+    +
+    dig 1
+    -
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 12
+    uncover 2
+    intc_3 // 22
+    extract_uint16
+    uncover 4
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:194
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:199
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:195-200
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("domicilio_fiscal"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    uncover 3
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    swap
+    pushint 18
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:197
+    // campo=arc4.String("domicilio_fiscal"),
+    pushbytes 0x0010646f6d6963696c696f5f66697363616c
+    // smart_contracts/registro_empresarial/contract.py:195-200
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("domicilio_fiscal"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    concat
+    swap
+    concat
+    bytec_2 // method "CampoActualizado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:188
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.actualizar_reparto_acciones[routing]() -> void:
+actualizar_reparto_acciones:
+    // smart_contracts/registro_empresarial/contract.py:202
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:204
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:205
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:206
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:207
+    // empresa.reparto_acciones = valor
+    dup
+    pushint 12
+    extract_uint16
+    dig 1
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 5
+    concat
+    dig 2
+    intc_3 // 22
+    extract_uint16
+    dig 3
+    len
+    uncover 4
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    uncover 4
+    +
+    swap
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:208
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:213
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:209-214
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("reparto_acciones"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    uncover 3
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    swap
+    pushint 18
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:211
+    // campo=arc4.String("reparto_acciones"),
+    pushbytes 0x00107265706172746f5f616363696f6e6573
+    // smart_contracts/registro_empresarial/contract.py:209-214
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("reparto_acciones"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    concat
+    swap
+    concat
+    bytec_2 // method "CampoActualizado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:202
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.actualizar_permiso_uso_nombre[routing]() -> void:
+actualizar_permiso_uso_nombre:
+    // smart_contracts/registro_empresarial/contract.py:216
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:218
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:219
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    dig 3
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:220
+    // empresa = self.empresas[expediente].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:221
+    // empresa.permiso_uso_nombre = valor
+    dup
+    intc_3 // 22
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    dig 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:222
+    // self.empresas[expediente] = empresa.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:227
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:223-228
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("permiso_uso_nombre"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    uncover 3
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    swap
+    pushint 20
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/registro_empresarial/contract.py:225
+    // campo=arc4.String("permiso_uso_nombre"),
+    pushbytes 0x00127065726d69736f5f75736f5f6e6f6d627265
+    // smart_contracts/registro_empresarial/contract.py:223-228
+    // arc4.emit(CampoActualizado(
+    //     expediente=expediente,
+    //     campo=arc4.String("permiso_uso_nombre"),
+    //     valor_nuevo=valor,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    concat
+    swap
+    concat
+    bytec_2 // method "CampoActualizado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:216
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.cambiar_estatus[routing]() -> void:
+cambiar_estatus:
+    // smart_contracts/registro_empresarial/contract.py:230
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    cover 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:233
+    // assert self._es_registrador(), "No autorizado"
+    callsub _es_registrador
+    assert // No autorizado
+    // smart_contracts/registro_empresarial/contract.py:234
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    uncover 2
+    concat
+    dup
+    cover 2
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:236
+    // nuevo_estatus.native == String("activa")
+    extract 2 0
+    dup
+    pushbytes "activa"
+    ==
+    // smart_contracts/registro_empresarial/contract.py:236-238
+    // nuevo_estatus.native == String("activa")
+    // or nuevo_estatus.native == String("suspendida")
+    // or nuevo_estatus.native == String("disuelta")
+    bnz cambiar_estatus_bool_true@4
+    // smart_contracts/registro_empresarial/contract.py:237
+    // or nuevo_estatus.native == String("suspendida")
+    dup
+    pushbytes "suspendida"
+    ==
+    // smart_contracts/registro_empresarial/contract.py:236-238
+    // nuevo_estatus.native == String("activa")
+    // or nuevo_estatus.native == String("suspendida")
+    // or nuevo_estatus.native == String("disuelta")
+    bnz cambiar_estatus_bool_true@4
+    // smart_contracts/registro_empresarial/contract.py:238
+    // or nuevo_estatus.native == String("disuelta")
+    dup
+    pushbytes "disuelta"
+    ==
+    // smart_contracts/registro_empresarial/contract.py:236-238
+    // nuevo_estatus.native == String("activa")
+    // or nuevo_estatus.native == String("suspendida")
+    // or nuevo_estatus.native == String("disuelta")
+    bz cambiar_estatus_bool_false@5
+
+cambiar_estatus_bool_true@4:
+    intc_2 // 1
+
+cambiar_estatus_bool_merge@6:
+    // smart_contracts/registro_empresarial/contract.py:235-239
+    // assert (
+    //     nuevo_estatus.native == String("activa")
+    //     or nuevo_estatus.native == String("suspendida")
+    //     or nuevo_estatus.native == String("disuelta")
+    // ), "Estatus inválido. Use: activa, suspendida o disuelta"
+    assert // Estatus inválido. Use: activa, suspendida o disuelta
+    // smart_contracts/registro_empresarial/contract.py:240
+    // empresa = self.empresas[expediente].copy()
+    dig 1
+    dup
+    box_get
+    assert // check self.empresas entry exists
+    // smart_contracts/registro_empresarial/contract.py:240-241
+    // empresa = self.empresas[expediente].copy()
+    // estatus_anterior = empresa.estatus
+    dig 1
+    pushint 6
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 2
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_1 // 2
+    +
+    dig 3
+    cover 2
+    box_extract
+    // smart_contracts/registro_empresarial/contract.py:242
+    // empresa.estatus = nuevo_estatus
+    dig 1
+    pushint 6
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    dig 2
+    extract3
+    dig 8
+    dup
+    cover 6
+    concat
+    dig 3
+    pushint 8
+    extract_uint16
+    dig 4
+    len
+    dig 5
+    dig 2
+    uncover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    dig 1
+    uncover 3
+    -
+    uncover 2
+    dig 9
+    dup
+    cover 4
+    +
+    dig 1
+    -
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 8
+    dig 4
+    pushint 10
+    extract_uint16
+    dig 3
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 10
+    dig 4
+    pushint 12
+    extract_uint16
+    dig 3
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 12
+    uncover 4
+    intc_3 // 22
+    extract_uint16
+    uncover 3
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    // smart_contracts/registro_empresarial/contract.py:243
+    // self.empresas[expediente] = empresa.copy()
+    dig 2
+    box_del
+    pop
+    uncover 2
+    swap
+    box_put
+    // smart_contracts/registro_empresarial/contract.py:248
+    // registrador=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:244-249
+    // arc4.emit(EstatusModificado(
+    //     expediente=expediente,
+    //     estatus_anterior=estatus_anterior,
+    //     estatus_nuevo=nuevo_estatus,
+    //     registrador=arc4.Address(Txn.sender),
+    // ))
+    pushint 38
+    dig 8
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_1 // 0x0026
+    swap
+    concat
+    dig 3
+    len
+    uncover 2
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    dig 8
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x7bbe3d03 // method "EstatusModificado(string,string,string,address)"
+    swap
+    concat
+    log
+    // smart_contracts/registro_empresarial/contract.py:230
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+cambiar_estatus_bool_false@5:
+    intc_0 // 0
+    b cambiar_estatus_bool_merge@6
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.consultar_empresa[routing]() -> void:
+consultar_empresa:
+    // smart_contracts/registro_empresarial/contract.py:253
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/registro_empresarial/contract.py:256
+    // assert expediente in self.empresas, "Empresa no encontrada"
+    bytec_0 // "empresas"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Empresa no encontrada
+    // smart_contracts/registro_empresarial/contract.py:257
+    // return self.empresas[expediente].copy()
+    box_get
+    pop
+    // smart_contracts/registro_empresarial/contract.py:253
+    // @arc4.abimethod(readonly=True)
+    bytec 6 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.es_registrador[routing]() -> void:
+es_registrador:
+    // smart_contracts/registro_empresarial/contract.py:259
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/registro_empresarial/contract.py:261
+    // if cuenta in self.registradores:
+    bytec 4 // "registradores"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz es_registrador_after_if_else@3
+    // smart_contracts/registro_empresarial/contract.py:262
+    // return arc4.Bool(self.registradores[cuenta].native)
+    dup
+    box_get
+    assert // check self.registradores entry exists
+
+es_registrador_after_inlined_smart_contracts.registro_empresarial.contract.RegistroEmpresarial.es_registrador@4:
+    // smart_contracts/registro_empresarial/contract.py:259
+    // @arc4.abimethod(readonly=True)
+    bytec 6 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+es_registrador_after_if_else@3:
+    // smart_contracts/registro_empresarial/contract.py:263
+    // return arc4.Bool(False)
+    pushbytes 0x00
+    // smart_contracts/registro_empresarial/contract.py:259
+    // @arc4.abimethod(readonly=True)
+    b es_registrador_after_inlined_smart_contracts.registro_empresarial.contract.RegistroEmpresarial.es_registrador@4
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial.obtener_total[routing]() -> void:
+obtener_total:
+    // smart_contracts/registro_empresarial/contract.py:267
+    // return self.total_empresas.value
+    intc_0 // 0
+    bytec_3 // "total_empresas"
+    app_global_get_ex
+    assert // check self.total_empresas exists
+    // smart_contracts/registro_empresarial/contract.py:265
+    // @arc4.abimethod(readonly=True)
+    itob
+    bytec 6 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// smart_contracts.registro_empresarial.contract.RegistroEmpresarial._es_registrador() -> uint64:
+_es_registrador:
+    // smart_contracts/registro_empresarial/contract.py:271-272
+    // @subroutine
+    // def _es_registrador(self) -> bool:
+    proto 0 1
+    // smart_contracts/registro_empresarial/contract.py:274
+    // if sender in self.registradores:
+    bytec 4 // "registradores"
+    // smart_contracts/registro_empresarial/contract.py:273
+    // sender = arc4.Address(Txn.sender)
+    txn Sender
+    // smart_contracts/registro_empresarial/contract.py:274
+    // if sender in self.registradores:
+    concat
+    dup
+    box_len
+    bury 1
+    bz _es_registrador_after_if_else@2
+    // smart_contracts/registro_empresarial/contract.py:275
+    // return self.registradores[sender].native
+    frame_dig 0
+    box_get
+    assert // check self.registradores entry exists
+    intc_0 // 0
+    getbit
+    swap
+    retsub
+
+_es_registrador_after_if_else@2:
+    // smart_contracts/registro_empresarial/contract.py:276
+    // return False
+    intc_0 // 0
+    swap
+    retsub
