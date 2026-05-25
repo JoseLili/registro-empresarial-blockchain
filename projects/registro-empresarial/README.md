@@ -1,101 +1,100 @@
-# registro-empresarial
+# Registro Empresarial en Blockchain
 
-This project has been generated using AlgoKit. See below for default getting started instructions.
+Prototipo de smart contract para el registro auditable de empresas
+mexicanas sobre Algorand blockchain.
 
-# Setup
+**App ID:** 763199151 — [Ver en Lora Explorer](https://lora.algokit.io/testnet/application/763199151)
 
-### Pre-requisites
+## Descripción
 
-- [Python 3.12](https://www.python.org/downloads/) or later
-- [Docker](https://www.docker.com/) (only required for LocalNet)
+Sistema de registro empresarial permisionado que garantiza
+trazabilidad e integridad de los datos mediante blockchain.
+Cualquier ciudadano puede consultar el estado de una empresa
+sin costo ni autenticación. Solo cuentas autorizadas pueden
+registrar o modificar empresas.
 
-> For interactive tour over the codebase, download [vsls-contrib.codetour](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.codetour) extension for VS Code, then open the [`.codetour.json`](./.tours/getting-started-with-your-algokit-project.tour) file in code tour extension.
+## Arquitectura
 
-### Initial Setup
+Administrador (Gobierno)
+└── Gestiona registradores autorizados comparado a las Notarias que exiten.
+Registradores (Notarías)
+└── Registran y modifican empresas, uno requiere acudir a una de estas para escriturizar una empresa.
+Público
+└── Consulta sin costo ni permiso. 
 
-#### 1. Clone the Repository
-Start by cloning this repository to your local machine.
+## Campos registrados
 
-#### 2. Install Pre-requisites
-Ensure the following pre-requisites are installed and properly configured:
+|           Campo       |  Tipo  |          Mutabilidad              |
+|-----------------------|--------|-----------------------------------|
+| Expediente notarial   | String | Inmutable (llave primaria)        |
+| Razón social          | String | Mutable                           |
+| RFC                   | String | Escritura única                   |
+| Tipo de sociedad      | String | Enum (11 tipos válidos)           |
+| Estatus               | String | Enum (activa/suspendida/disuelta) |
+| Representante legal   | String | Mutable 			     |
+| Domicilio fiscal      | String | Mutable			     |
+| Reparto de acciones   | String | Mutable			     |
+| Número de notaría     | UInt64 | Inmutable			     |
+| Permiso uso de nombre | String | Mutable			     |
 
-- **Docker**: Required for running a local Algorand network. [Install Docker](https://www.docker.com/).
-- **AlgoKit CLI**: Essential for project setup and operations. Install the latest version from [AlgoKit CLI Installation Guide](https://github.com/algorandfoundation/algokit-cli#install). Verify installation with `algokit --version`, expecting `2.0.0` or later.
+## Tecnologías
 
-#### 3. Bootstrap Your Local Environment
-Run the following commands within the project folder:
+- **Blockchain:** Algorand TestNet
+- **Lenguaje:** Algorand Python
+- **Compilador:** PuyaPy 5.8.1
+- **Herramientas:** AlgoKit, algosdk v2.7.0
+- **Estándares:** ARC-4, ARC-28 Events
 
-- **Install Poetry**: Required for Python dependency management. [Installation Guide](https://python-poetry.org/docs/#installation). Verify with `poetry -V` to see version `1.2`+.
-- **Setup Project**: Execute `algokit project bootstrap all` to install dependencies and setup a Python virtual environment in `.venv`.
-- **Configure environment**: Execute `algokit generate env-file -a target_network localnet` to create a `.env.localnet` file with default configuration for `localnet`.
-- **Start LocalNet**: Use `algokit localnet start` to initiate a local Algorand network.
+## Instalación
 
-### Development Workflow
+```bash
+# Instalar dependencias
+poetry install
 
-#### Terminal
-Directly manage and interact with your project using AlgoKit commands:
+# Compilar contrato
+algokit project run build
 
-1. **Build Contracts**: `algokit project run build` compiles all smart contracts. You can also specify a specific contract by passing the name of the contract folder as an extra argument.
-For example: `algokit project run build -- hello_world` will only build the `hello_world` contract.
-2. **Deploy**: Use `algokit project deploy localnet` to deploy contracts to the local network. You can also specify a specific contract by passing the name of the contract folder as an extra argument.
-For example: `algokit project deploy localnet -- hello_world` will only deploy the `hello_world` contract.
+# Desplegar en TestNet
+algokit deploy
+```
 
-#### VS Code 
-For a seamless experience with breakpoint debugging and other features:
+## Scripts de interacción
 
-1. **Open Project**: In VS Code, open the repository root.
-2. **Install Extensions**: Follow prompts to install recommended extensions.
-3. **Debugging**:
-   - Use `F5` to start debugging.
-   - **Windows Users**: Select the Python interpreter at `./.venv/Scripts/python.exe` via `Ctrl/Cmd + Shift + P` > `Python: Select Interpreter` before the first run.
+```bash
+# Registrar empresa de prueba
+poetry run python prueba_demo.py
 
-#### JetBrains IDEs
-While primarily optimized for VS Code, JetBrains IDEs are supported:
+# Modificar empresa existente
+poetry run python demo_modificacion.py
 
-1. **Open Project**: In your JetBrains IDE, open the repository root.
-2. **Automatic Setup**: The IDE should configure the Python interpreter and virtual environment.
-3. **Debugging**: Use `Shift+F10` or `Ctrl+R` to start debugging. Note: Windows users may encounter issues with pre-launch tasks due to a known bug. See [JetBrains forums](https://youtrack.jetbrains.com/issue/IDEA-277486/Shell-script-configuration-cannot-run-as-before-launch-task) for workarounds.
+# Consulta pública sin wallet
+poetry run python consulta_publica.py
 
-## AlgoKit Workspaces and Project Management
-This project supports both standalone and monorepo setups through AlgoKit workspaces. Leverage [`algokit project run`](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/project/run.md) commands for efficient monorepo project orchestration and management across multiple projects within a workspace.
+# Agregar registrador autorizado
+poetry run python agregar_pera.py
+```
 
-## AlgoKit Generators
+## Contrato desplegado
 
-This template provides a set of [algokit generators](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md) that allow you to further modify the project instantiated from the template to fit your needs, as well as giving you a base to build your own extensions to invoke via the `algokit generate` command.
+| Parámetro  |       Valor      |
+|------------|------------------|
+| App ID     | 763199151        |
+| Red        | Algorand TestNet |
+| Compilador | PuyaPy 5.8.1     |
+| Bloque     | 63678591         |
 
-### Generate Smart Contract 
+## Uso de IA
 
-By default the template creates a single `HelloWorld` contract under registro_empresarial folder in the `smart_contracts` directory. To add a new contract:
+Este proyecto fue desarrollado con asistencia de Claude (Anthropic)
+para el diseño del contrato, resolución de errores de compilación
+y configuración del entorno. El diseño del modelo de datos,
+las decisiones de arquitectura, la lógica de negocio y demostracion en el sitio
+https://azure-flamingo-946484.hostingersite.com/?authuser=0  fueron
+definidos por el autor basándose en conocimiento real del
+proceso de constitución empresarial en México.
 
-1. From the root of the project (`../`) execute `algokit generate smart-contract`. This will create a new starter smart contract and deployment configuration file under `{your_contract_name}` subfolder in the `smart_contracts` directory.
-2. Each contract potentially has different creation parameters and deployment steps. Hence, you need to define your deployment logic in `deploy_config.py`file.
-3. `config.py` file will automatically build all contracts in the `smart_contracts` directory. If you want to build specific contracts manually, modify the default code provided by the template in `config.py` file.
+## Autor
 
-> Please note, above is just a suggested convention tailored for the base configuration and structure of this template. The default code supplied by the template in `config.py` and `index.ts` (if using ts clients) files are tailored for the suggested convention. You are free to modify the structure and naming conventions as you see fit.
-
-### Generate '.env' files
-
-By default the template instance does not contain any env files. Using [`algokit project deploy`](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/project/deploy.md) against `localnet` | `testnet` | `mainnet` will use default values for `algod` and `indexer` unless overwritten via `.env` or `.env.{target_network}`. 
-
-To generate a new `.env` or `.env.{target_network}` file, run `algokit generate env-file`
-
-### Debugging Smart Contracts
-
-This project is optimized to work with AlgoKit AVM Debugger extension. To activate it:
-Refer to the commented header in the `__main__.py` file in the `smart_contracts` folder.
-
-If you have opted in to include VSCode launch configurations in your project, you can also use the `Debug TEAL via AlgoKit AVM Debugger` launch configuration to interactively select an available trace file and launch the debug session for your smart contract.
-
-For information on using and setting up the `AlgoKit AVM Debugger` VSCode extension refer [here](https://github.com/algorandfoundation/algokit-avm-vscode-debugger). To install the extension from the VSCode Marketplace, use the following link: [AlgoKit AVM Debugger extension](https://marketplace.visualstudio.com/items?itemName=algorandfoundation.algokit-avm-vscode-debugger).
-
-# Tools
-
-This project makes use of Algorand Python to build Algorand smart contracts. The following tools are in use:
-
-- [Algorand](https://www.algorand.com/) - Layer 1 Blockchain; [Developer portal](https://dev.algorand.co/), [Why Algorand?](https://dev.algorand.co/getting-started/why-algorand/)
-- [AlgoKit](https://github.com/algorandfoundation/algokit-cli) - One-stop shop tool for developers building on the Algorand network; [docs](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md), [intro tutorial](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/tutorials/intro.md)
-- [Algorand Python](https://github.com/algorandfoundation/puya) - A semantically and syntactically compatible, typed Python language that works with standard Python tooling and allows you to express smart contracts (apps) and smart signatures (logic signatures) for deployment on the Algorand Virtual Machine (AVM); [docs](https://github.com/algorandfoundation/puya), [examples](https://github.com/algorandfoundation/puya/tree/main/examples)
-- [AlgoKit Utils](https://github.com/algorandfoundation/algokit-utils-py) - A set of core Algorand utilities that make it easier to build solutions on Algorand.
-- [Poetry](https://python-poetry.org/): Python packaging and dependency management.
-It has also been configured to have a productive dev experience out of the box in [VS Code](https://code.visualstudio.com/), see the [.vscode](./.vscode) folder.
-
+José Emiliano Lili Beltrán  
+Fundamentos de Blockchain — Mayo 2026  
+Posgrado en Ciencia e Ingeniería de la Computación, UNAM
