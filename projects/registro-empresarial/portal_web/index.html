@@ -69,6 +69,8 @@
   .result-value { font-size: 14px; color: var(--text); word-break: break-all; }
   .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; }
   .badge-active { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+  .badge-suspended { background: rgba(251,191,36,0.12); color: #fcd34d; border: 1px solid rgba(251,191,36,0.2); }
+  .badge-dissolved { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
   .badge-pending { background: rgba(201,168,76,0.12); color: #fcd34d; border: 1px solid rgba(201,168,76,0.2); }
   .tx-link { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid rgba(61,127,255,0.2); border-radius: 20px; background: rgba(61,127,255,0.05); transition: all 0.2s; }
   .tx-link:hover { background: rgba(61,127,255,0.12); }
@@ -80,6 +82,24 @@
   .search-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
   .search-row input { flex: 1; }
   .info-note { background: rgba(61,127,255,0.05); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.7; }
+
+  /* ── Historial ── */
+  .history-section { margin-top: 1.5rem; }
+  .history-title { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .history-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--gold); border-radius: 2px; }
+  .event-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .event-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .event-type { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.04em; }
+  .event-registrada { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+  .event-actualizada { background: rgba(61,127,255,0.12); color: #93c5fd; border: 1px solid rgba(61,127,255,0.2); }
+  .event-estatus { background: rgba(251,191,36,0.12); color: #fcd34d; border: 1px solid rgba(251,191,36,0.2); }
+  .event-rfc { background: rgba(168,85,247,0.12); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
+  .event-unknown { background: rgba(107,114,128,0.12); color: var(--muted); border: 1px solid var(--border); }
+  .event-body { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 12px; }
+  .event-field { display: flex; gap: 4px; }
+  .event-field-label { color: var(--muted); }
+  .event-field-value { color: var(--text); font-family: 'DM Mono', monospace; }
+
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: 1fr; }
     .form-group.full { grid-column: 1; }
@@ -90,7 +110,6 @@
     .result-label { min-width: 110px; }
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.4/dist/umd/index.js"></script>
 </head>
 <body>
 
@@ -128,9 +147,10 @@
     <button class="tab" onclick="switchTab('registro',event)">🏛 Registrar empresa</button>
   </div>
 
+  <!-- ── Panel consulta ── -->
   <div id="panel-consulta" class="panel active">
     <div class="info-note">
-      La consulta es pública y gratuita. No requiere wallet ni permisos. Cualquier ciudadano puede verificar el estado actual de una empresa registrada en la blockchain.
+      La consulta es pública y gratuita. No requiere wallet ni permisos. Cualquier ciudadano puede verificar el estado actual e historial de una empresa registrada.
     </div>
     <div class="card">
       <div class="card-title">Buscar por número de expediente</div>
@@ -142,16 +162,32 @@
         </button>
       </div>
       <div id="consulta-alert"></div>
+
+      <!-- Estado actual -->
       <div id="consulta-result" style="display:none">
         <div class="divider"></div>
         <div class="result-grid" id="result-grid"></div>
         <div style="margin-top:1rem">
           <a id="lora-link" class="tx-link" target="_blank">⬡ Ver contrato en Lora Explorer →</a>
         </div>
+
+        <!-- Historial de cambios -->
+        <div class="history-section">
+          <div class="divider"></div>
+          <div class="history-title">Historial de cambios</div>
+          <div id="history-loading" style="display:none; text-align:center; padding:1rem; color:var(--muted); font-size:13px;">
+            Cargando historial desde blockchain...
+          </div>
+          <div id="history-content"></div>
+          <div id="history-empty" style="display:none; text-align:center; padding:1rem; color:var(--muted); font-size:13px;">
+            No se encontraron eventos para este expediente.
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- ── Panel registro ── -->
   <div id="panel-registro" class="panel">
     <div class="info-note">
       El registro requiere una wallet de Algorand con permisos de registrador. La transacción queda grabada permanentemente en la blockchain y no puede borrarse.
@@ -232,8 +268,20 @@
 
 <script>
 const APP_ID = 763199151;
-const ALGOD_SERVER = 'https://testnet-api.algonode.cloud';
+const ALGOD_SERVER  = 'https://testnet-api.algonode.cloud';
+const INDEXER_SERVER = 'https://testnet-idx.algonode.cloud';
 const LORA_BASE = 'https://lora.algokit.io/testnet';
+
+// ── ARC-28 Event selectors ───────────────────────────────────────────────────
+const SELECTORS = {
+  '02728aff': 'EmpresaRegistrada',
+  '35c2b378': 'CampoActualizado',
+  '7bbe3d03': 'EstatusModificado',
+  '0dac93d2': 'RFCRegistrado',
+  '2a5a05b7': 'RegistradorAgregado',
+  '3233410c': 'RegistradorRemovido',
+};
+
 let walletAddress = null;
 let peraWallet = null;
 
@@ -270,21 +318,15 @@ function buildBoxKey(expediente) {
 }
 
 function decodeEmpresa(data) {
-  // ARC4 struct layout:
-  // bytes 0-13:  7 offsets x 2 bytes = offsets absolutos de cada string (0-6)
-  // bytes 14-21: numero_notaria como uint64 inline
-  // bytes 22-23: offset absoluto de permiso_uso_nombre
   const strOffsets = [];
   for (let i = 0; i < 7; i++) strOffsets.push((data[i*2] << 8) | data[i*2+1]);
   let notaria = 0n;
   for (let i = 14; i < 22; i++) notaria = notaria * 256n + BigInt(data[i]);
   const permisoOffset = (data[22] << 8) | data[23];
-
   function readStr(absPos) {
     const len = (data[absPos] << 8) | data[absPos+1];
     return new TextDecoder().decode(data.slice(absPos+2, absPos+2+len));
   }
-
   return {
     razon_social:        readStr(strOffsets[0]),
     rfc:                 readStr(strOffsets[1]),
@@ -298,6 +340,173 @@ function decodeEmpresa(data) {
   };
 }
 
+// ── Decodificador de eventos ARC-28 ─────────────────────────────────────────
+function decodeARC4String(bytes, offset) {
+  if (offset + 2 > bytes.length) return { text: '', next: offset };
+  const len = (bytes[offset] << 8) | bytes[offset+1];
+  const text = new TextDecoder().decode(bytes.slice(offset+2, offset+2+len));
+  return { text, next: offset+2+len };
+}
+
+function decodeAddress(bytes, offset) {
+  const addrBytes = bytes.slice(offset, offset+32);
+  return { text: algosdk.encodeAddress(addrBytes), next: offset+32 };
+}
+
+function decodeEvent(logBase64) {
+  const bytes = Uint8Array.from(atob(logBase64), c => c.charCodeAt(0));
+  if (bytes.length < 4) return null;
+
+  const selector = Array.from(bytes.slice(0, 4)).map(b => b.toString(16).padStart(2,'0')).join('');
+  const eventName = SELECTORS[selector];
+  if (!eventName) return null;
+
+  const payload = bytes.slice(4);
+  let offset = 0;
+  const fields = {};
+
+  try {
+    if (eventName === 'EmpresaRegistrada') {
+      // ARC-4 tuple: string, string, string, uint64, address
+      // Header: 3 dynamic offsets (2 bytes each) + uint64 (8 bytes) + 1 dynamic offset = 14 bytes
+      const off0 = (payload[0]<<8)|payload[1];
+      const off1 = (payload[2]<<8)|payload[3];
+      const off2 = (payload[4]<<8)|payload[5];
+      let notaria = 0n;
+      for (let i=6; i<14; i++) notaria = notaria*256n + BigInt(payload[i]);
+      const off3 = (payload[14]<<8)|payload[15];
+      const r0 = decodeARC4String(payload, off0);
+      const r1 = decodeARC4String(payload, off1);
+      const r2 = decodeARC4String(payload, off2);
+      const r3 = decodeAddress(payload, off3);
+      fields.expediente    = r0.text;
+      fields.razon_social  = r1.text;
+      fields.tipo_sociedad = r2.text;
+      fields.notaria       = Number(notaria).toString();
+      fields.registrador   = r3.text.slice(0,8) + '...' + r3.text.slice(-6);
+
+    } else if (eventName === 'CampoActualizado') {
+      // ARC-4 tuple: string, string, string, address — header: 3 offsets + address offset = 8 bytes
+      const off0 = (payload[0]<<8)|payload[1];
+      const off1 = (payload[2]<<8)|payload[3];
+      const off2 = (payload[4]<<8)|payload[5];
+      const off3 = (payload[6]<<8)|payload[7];
+      fields.expediente   = decodeARC4String(payload, off0).text;
+      fields.campo        = decodeARC4String(payload, off1).text;
+      fields.valor_nuevo  = decodeARC4String(payload, off2).text;
+      const addr = decodeAddress(payload, off3);
+      fields.registrador  = addr.text.slice(0,8) + '...' + addr.text.slice(-6);
+
+    } else if (eventName === 'EstatusModificado') {
+      // ARC-4 tuple: string, string, string, address
+      const off0 = (payload[0]<<8)|payload[1];
+      const off1 = (payload[2]<<8)|payload[3];
+      const off2 = (payload[4]<<8)|payload[5];
+      const off3 = (payload[6]<<8)|payload[7];
+      fields.expediente        = decodeARC4String(payload, off0).text;
+      fields.estatus_anterior  = decodeARC4String(payload, off1).text;
+      fields.estatus_nuevo     = decodeARC4String(payload, off2).text;
+      const addr = decodeAddress(payload, off3);
+      fields.registrador = addr.text.slice(0,8) + '...' + addr.text.slice(-6);
+
+    } else if (eventName === 'RFCRegistrado') {
+      // ARC-4 tuple: string, string, address
+      const off0 = (payload[0]<<8)|payload[1];
+      const off1 = (payload[2]<<8)|payload[3];
+      const off2 = (payload[4]<<8)|payload[5];
+      fields.expediente  = decodeARC4String(payload, off0).text;
+      fields.rfc         = decodeARC4String(payload, off1).text;
+      const addr = decodeAddress(payload, off2);
+      fields.registrador = addr.text.slice(0,8) + '...' + addr.text.slice(-6);
+    }
+  } catch(e) {
+    return { eventName, fields: { error: 'No se pudo decodificar' } };
+  }
+
+  return { eventName, fields };
+}
+
+function renderEventCard(event, txid) {
+  const typeClasses = {
+    'EmpresaRegistrada': 'event-registrada',
+    'CampoActualizado':  'event-actualizada',
+    'EstatusModificado': 'event-estatus',
+    'RFCRegistrado':     'event-rfc',
+  };
+  const typeLabels = {
+    'EmpresaRegistrada': '✓ Alta de empresa',
+    'CampoActualizado':  '✎ Campo actualizado',
+    'EstatusModificado': '⟳ Estatus modificado',
+    'RFCRegistrado':     '# RFC registrado',
+  };
+  const cls = typeClasses[event.eventName] || 'event-unknown';
+  const label = typeLabels[event.eventName] || event.eventName;
+
+  const fieldsHtml = Object.entries(event.fields)
+    .filter(([k]) => k !== 'expediente')
+    .map(([k, v]) => `
+      <div class="event-field">
+        <span class="event-field-label">${k.replace(/_/g,' ')}:</span>
+        <span class="event-field-value">${v}</span>
+      </div>`)
+    .join('');
+
+  const txShort = txid.slice(0,10) + '...' + txid.slice(-6);
+
+  return `
+    <div class="event-card">
+      <div class="event-header">
+        <span class="event-type ${cls}">${label}</span>
+        <a class="tx-link" href="${LORA_BASE}/transaction/${txid}" target="_blank">TX: ${txShort} →</a>
+      </div>
+      <div class="event-body">${fieldsHtml}</div>
+    </div>`;
+}
+
+async function cargarHistorial(expediente) {
+  document.getElementById('history-loading').style.display = 'block';
+  document.getElementById('history-content').innerHTML = '';
+  document.getElementById('history-empty').style.display = 'none';
+
+  try {
+    // Obtener todos los logs del contrato
+    const res = await fetch(`${INDEXER_SERVER}/v2/applications/${APP_ID}/logs?limit=100`);
+    const data = await res.json();
+
+    if (!data['log-data']) {
+      document.getElementById('history-empty').style.display = 'block';
+      return;
+    }
+
+    // Filtrar y decodificar eventos relacionados con este expediente
+    const events = [];
+    for (const entry of data['log-data']) {
+      for (const log of entry.logs) {
+        const decoded = decodeEvent(log);
+        if (!decoded) continue;
+        // Filtrar por expediente
+        if (decoded.fields.expediente && decoded.fields.expediente !== expediente) continue;
+        events.push({ ...decoded, txid: entry.txid });
+      }
+    }
+
+    document.getElementById('history-loading').style.display = 'none';
+
+    if (events.length === 0) {
+      document.getElementById('history-empty').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('history-content').innerHTML =
+      events.map(e => renderEventCard(e, e.txid)).join('');
+
+  } catch(e) {
+    document.getElementById('history-loading').style.display = 'none';
+    document.getElementById('history-content').innerHTML =
+      `<div class="alert alert-error">Error cargando historial: ${e.message}</div>`;
+  }
+}
+
 async function consultarEmpresa() {
   const expediente = document.getElementById('buscar-expediente').value.trim();
   if (!expediente) return showAlert('consulta-alert', 'error', 'Ingresa un número de expediente.');
@@ -305,10 +514,15 @@ async function consultarEmpresa() {
   document.getElementById('consulta-result').style.display = 'none';
   document.getElementById('btn-buscar-text').textContent = 'Buscando...';
   document.getElementById('spinner-buscar').style.display = 'inline-block';
+
   try {
     const algodClient = new algosdk.Algodv2('', ALGOD_SERVER, '');
     const boxData = await algodClient.getApplicationBoxByName(APP_ID, buildBoxKey(expediente)).do();
-    renderResult(decodeEmpresa(boxData.value), expediente);
+    const empresa = decodeEmpresa(boxData.value);
+    renderResult(empresa, expediente);
+    document.getElementById('consulta-result').style.display = 'block';
+    // Cargar historial en paralelo
+    cargarHistorial(expediente);
   } catch(e) {
     if (e.status === 404 || (e.message && e.message.includes('404'))) {
       showAlert('consulta-alert', 'error', `No se encontró ninguna empresa con el expediente <strong>${expediente}</strong>.`);
@@ -322,13 +536,18 @@ async function consultarEmpresa() {
 }
 
 function renderResult(e, expediente) {
-  const statusBadge = `<span class="badge badge-${e.estatus === 'activa' ? 'active' : 'pending'}">${e.estatus.toUpperCase()}</span>`;
+  const estatusBadge = {
+    'activa':      '<span class="badge badge-active">ACTIVA</span>',
+    'suspendida':  '<span class="badge badge-suspended">SUSPENDIDA</span>',
+    'disuelta':    '<span class="badge badge-dissolved">DISUELTA</span>',
+  }[e.estatus] || `<span class="badge">${e.estatus}</span>`;
+
   const rfcVal = e.rfc ? e.rfc : `<span class="badge badge-pending">Pendiente de tramitar</span>`;
   const rows = [
     ['Expediente', expediente],
     ['Razón social', e.razon_social],
     ['Tipo de sociedad', e.tipo_sociedad],
-    ['Estatus', statusBadge],
+    ['Estatus', estatusBadge],
     ['RFC', rfcVal],
     ['Representante legal', e.representante_legal],
     ['Domicilio fiscal', e.domicilio_fiscal],
@@ -340,15 +559,13 @@ function renderResult(e, expediente) {
     `<div class="result-row"><div class="result-label">${l}</div><div class="result-value">${v}</div></div>`
   ).join('');
   document.getElementById('lora-link').href = `${LORA_BASE}/application/${APP_ID}`;
-  document.getElementById('consulta-result').style.display = 'block';
 }
 
 async function conectarWallet() {
-  showAlert('registro-alert', 'info', 'Iniciando conexión...');
+  showAlert('registro-alert', 'info', 'Iniciando conexión con Pera Wallet...');
   try {
-    const PWC = window.PeraWalletConnect || window['@perawallet/connect']?.PeraWalletConnect;
-    if (!PWC) throw new Error('Librería no cargada');
-    peraWallet = new PWC({ network: 'testnet' });
+    const mod = await import('https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.4/dist/esm/index.js');
+    peraWallet = new mod.PeraWalletConnect({ network: 'testnet' });
     const accounts = await peraWallet.connect();
     walletAddress = accounts[0];
     document.getElementById('wallet-dot').classList.add('connected');
@@ -359,7 +576,9 @@ async function conectarWallet() {
     document.getElementById('btn-registrar').disabled = false;
     clearAlert('registro-alert');
   } catch(e) {
-    showAlert('registro-alert', 'error', 'Error conectando wallet: ' + (e.message || e));
+    showAlert('registro-alert', 'info',
+      `Instala <strong>Pera Wallet</strong> en tu celular y activa la red TestNet. También puedes interactuar directamente desde el <a href="${LORA_BASE}/application/${APP_ID}" target="_blank" style="color:var(--accent)">App Lab de Lora →</a>`
+    );
   }
 }
 
@@ -396,8 +615,7 @@ async function registrarEmpresa() {
     const selector = new Uint8Array([0xec, 0x63, 0xd2, 0x26]);
     const args = [selector, encStr(expediente), encStr(razon), encStr(tipo), encStr(rep), encStr(dom), encStr(acc), encU64(not), encStr(per)];
     const txn = algosdk.makeApplicationCallTxnFromObject({
-      from: walletAddress,
-      appIndex: APP_ID,
+      from: walletAddress, appIndex: APP_ID,
       onComplete: algosdk.OnApplicationComplete.NoOpOC,
       appArgs: args,
       boxes: [{ appIndex: 0, name: buildBoxKey(expediente) }],
