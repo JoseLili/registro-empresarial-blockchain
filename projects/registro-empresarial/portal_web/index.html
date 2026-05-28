@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Empresarial — Blockchain</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/algosdk@2.7.0/dist/browser/algosdk.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0d12; --bg2: #111520; --bg3: #181d2a;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --accent: #3d7fff; --accent2: #1a56db; --gold: #c9a84c;
+    --text: #e8eaf0; --muted: #6b7280;
+    --success: #22c55e; --error: #ef4444;
+    --radius: 8px; --radius-lg: 14px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; min-height: 100vh; line-height: 1.6; }
+  header { border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; background: rgba(10,13,18,0.92); backdrop-filter: blur(12px); z-index: 100; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: 'DM Serif Display', serif; font-size: 1.1rem; }
+  .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), #6d44ff); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .chain-badge { font-family: 'DM Mono', monospace; font-size: 11px; background: rgba(61,127,255,0.12); border: 1px solid rgba(61,127,255,0.25); color: var(--accent); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em; }
+  .hero { padding: 5rem 2rem 3rem; max-width: 900px; margin: 0 auto; text-align: center; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); border: 1px solid rgba(201,168,76,0.3); background: rgba(201,168,76,0.07); padding: 4px 14px; border-radius: 20px; margin-bottom: 1.5rem; letter-spacing: 0.08em; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 400; line-height: 1.15; margin-bottom: 1rem; background: linear-gradient(135deg, #e8eaf0 30%, #8899cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { color: var(--muted); font-size: 1.05rem; max-width: 580px; margin: 0 auto 2rem; }
+  .stats-row { display: flex; justify-content: center; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'DM Mono', monospace; font-size: 1.6rem; color: var(--accent); font-weight: 500; }
+  .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+  .tabs-container { max-width: 860px; margin: 0 auto 4rem; padding: 0 2rem; }
+  .tabs { display: flex; gap: 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4px; margin-bottom: 1.5rem; }
+  .tab { flex: 1; padding: 10px 16px; border: none; background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .tab.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1rem; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  input, select { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px; padding: 10px 14px; transition: border-color 0.2s; width: 100%; outline: none; }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61,127,255,0.08); }
+  select option { background: var(--bg3); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 24px; border-radius: var(--radius); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text); }
+  .btn-outline:hover { background: var(--bg3); border-color: var(--accent); color: var(--accent); }
+  .btn-ghost { background: rgba(61,127,255,0.08); border: 1px solid rgba(61,127,255,0.2); color: var(--accent); }
+  .btn-ghost:hover { background: rgba(61,127,255,0.15); }
+  .wallet-section { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .wallet-info { display: flex; align-items: center; gap: 12px; }
+  .wallet-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .wallet-dot.connected { background: var(--success); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .wallet-address { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-bottom: 1rem; line-height: 1.6; }
+  .alert-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+  .alert-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; }
+  .alert-info { background: rgba(61,127,255,0.08); border: 1px solid rgba(61,127,255,0.2); color: #93c5fd; }
+  .result-grid { display: grid; gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; }
+  .result-row { display: flex; align-items: flex-start; gap: 1rem; background: var(--bg2); padding: 12px 16px; }
+  .result-label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; min-width: 160px; padding-top: 2px; }
+  .result-value { font-size: 14px; color: var(--text); word-break: break-all; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; }
+  .badge-active { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+  .badge-pending { background: rgba(201,168,76,0.12); color: #fcd34d; border: 1px solid rgba(201,168,76,0.2); }
+  .tx-link { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid rgba(61,127,255,0.2); border-radius: 20px; background: rgba(61,127,255,0.05); transition: all 0.2s; }
+  .tx-link:hover { background: rgba(61,127,255,0.12); }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 12px; font-family: 'DM Mono', monospace; }
+  .footer-chain { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.5rem; color: var(--accent); }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.15); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .search-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .search-row input { flex: 1; }
+  .info-note { background: rgba(61,127,255,0.05); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.7; }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    header { padding: 0 1rem; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .tabs-container { padding: 0 1rem; }
+    .wallet-section { flex-direction: column; }
+    .result-label { min-width: 110px; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.4/dist/umd/index.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⛓</div>
+    Registro Empresarial
+  </div>
+  <div class="chain-badge">ALGORAND TESTNET</div>
+</header>
+
+<section class="hero">
+  <div class="hero-tag">⬡ App ID: 763199151</div>
+  <h1>Registro auditable de<br>empresas en blockchain</h1>
+  <p>Consulta pública inmutable. Registros verificables. Sin intermediarios.</p>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num" id="total-empresas">—</div>
+      <div class="stat-label">Empresas registradas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">Algorand</div>
+      <div class="stat-label">Blockchain</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">ARC-28</div>
+      <div class="stat-label">Estándar de eventos</div>
+    </div>
+  </div>
+</section>
+
+<div class="tabs-container">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('consulta',event)">🔍 Consulta pública</button>
+    <button class="tab" onclick="switchTab('registro',event)">🏛 Registrar empresa</button>
+  </div>
+
+  <div id="panel-consulta" class="panel active">
+    <div class="info-note">
+      La consulta es pública y gratuita. No requiere wallet ni permisos. Cualquier ciudadano puede verificar el estado actual de una empresa registrada en la blockchain.
+    </div>
+    <div class="card">
+      <div class="card-title">Buscar por número de expediente</div>
+      <div class="search-row">
+        <input type="text" id="buscar-expediente" placeholder="Ej: NOTARIA-42-2024-001" onkeydown="if(event.key==='Enter') consultarEmpresa()" />
+        <button class="btn btn-primary" onclick="consultarEmpresa()">
+          <span id="btn-buscar-text">Buscar</span>
+          <div id="spinner-buscar" class="spinner" style="display:none"></div>
+        </button>
+      </div>
+      <div id="consulta-alert"></div>
+      <div id="consulta-result" style="display:none">
+        <div class="divider"></div>
+        <div class="result-grid" id="result-grid"></div>
+        <div style="margin-top:1rem">
+          <a id="lora-link" class="tx-link" target="_blank">⬡ Ver contrato en Lora Explorer →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-registro" class="panel">
+    <div class="info-note">
+      El registro requiere una wallet de Algorand con permisos de registrador. La transacción queda grabada permanentemente en la blockchain y no puede borrarse.
+    </div>
+    <div class="wallet-section">
+      <div class="wallet-info">
+        <div class="wallet-dot" id="wallet-dot"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px" id="wallet-status">Sin wallet conectada</div>
+          <div class="wallet-address" id="wallet-address">Conecta tu Pera Wallet para continuar</div>
+        </div>
+      </div>
+      <button class="btn btn-outline" id="btn-wallet" onclick="conectarWallet()">Conectar Pera Wallet</button>
+    </div>
+    <div id="registro-alert"></div>
+    <div class="card">
+      <div class="card-title">Datos de la empresa</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Número de expediente *</label>
+          <input type="text" id="f-expediente" placeholder="NOTARIA-XX-YYYY-NNN" />
+        </div>
+        <div class="form-group">
+          <label>Tipo de sociedad *</label>
+          <select id="f-tipo">
+            <option value="">Seleccionar...</option>
+            <option>S.A.</option><option>S. de R.L.</option><option>S.A.S.</option>
+            <option>S.C.L.</option><option>S.C.V.</option><option>S. en N.C.</option>
+            <option>S. en C.</option><option>S. en C. por A.</option>
+            <option>S.C.</option><option>A.C.</option><option>S.A.P.I.</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Razón social *</label>
+          <input type="text" id="f-razon" placeholder="Nombre oficial de la empresa" />
+        </div>
+        <div class="form-group full">
+          <label>Representante legal *</label>
+          <input type="text" id="f-representante" placeholder="Nombre completo" />
+        </div>
+        <div class="form-group full">
+          <label>Domicilio fiscal *</label>
+          <input type="text" id="f-domicilio" placeholder="Calle, número, colonia, ciudad, CP" />
+        </div>
+        <div class="form-group full">
+          <label>Reparto de acciones *</label>
+          <input type="text" id="f-acciones" placeholder="Ej: Juan Pérez 60%, María García 40%" />
+        </div>
+        <div class="form-group">
+          <label>Número de notaría *</label>
+          <input type="number" id="f-notaria" placeholder="Ej: 42" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Permiso uso de nombre *</label>
+          <input type="text" id="f-permiso" placeholder="PERMISO-SE-YYYY-NNN" />
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn btn-ghost" onclick="limpiarForm()">Limpiar</button>
+        <button class="btn btn-primary" id="btn-registrar" onclick="registrarEmpresa()" disabled>
+          <span id="btn-reg-text">Registrar en blockchain</span>
+          <div id="spinner-reg" class="spinner" style="display:none"></div>
+        </button>
+      </div>
+    </div>
+    <div id="registro-result" style="display:none" class="card">
+      <div class="card-title">Transacción confirmada</div>
+      <div id="registro-result-content"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Prototipo académico · Fundamentos de Blockchain
+  <div class="footer-chain">⬡ Algorand TestNet · App 763199151</div>
+</footer>
+
+<script>
+const APP_ID = 763199151;
+const ALGOD_SERVER = 'https://testnet-api.algonode.cloud';
+const LORA_BASE = 'https://lora.algokit.io/testnet';
+let walletAddress = null;
+let peraWallet = null;
+
+function switchTab(tab, e) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function showAlert(id, type, msg) {
+  document.getElementById(id).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+function clearAlert(id) { document.getElementById(id).innerHTML = ''; }
+
+async function cargarTotal() {
+  try {
+    const res = await fetch(`${ALGOD_SERVER}/v2/applications/${APP_ID}`);
+    const data = await res.json();
+    const entry = data.params['global-state'].find(e => atob(e.key) === 'total_empresas');
+    document.getElementById('total-empresas').textContent = entry ? entry.value.uint : 0;
+  } catch(e) {}
+}
+
+function buildBoxKey(expediente) {
+  const prefix = new TextEncoder().encode('empresas');
+  const key = new TextEncoder().encode(expediente);
+  const combined = new Uint8Array(prefix.length + 2 + key.length);
+  combined.set(prefix);
+  combined[prefix.length]     = (key.length >> 8) & 0xff;
+  combined[prefix.length + 1] = key.length & 0xff;
+  combined.set(key, prefix.length + 2);
+  return combined;
+}
+
+function decodeEmpresa(data) {
+  // ARC4 struct layout:
+  // bytes 0-13:  7 offsets x 2 bytes = offsets absolutos de cada string (0-6)
+  // bytes 14-21: numero_notaria como uint64 inline
+  // bytes 22-23: offset absoluto de permiso_uso_nombre
+  const strOffsets = [];
+  for (let i = 0; i < 7; i++) strOffsets.push((data[i*2] << 8) | data[i*2+1]);
+  let notaria = 0n;
+  for (let i = 14; i < 22; i++) notaria = notaria * 256n + BigInt(data[i]);
+  const permisoOffset = (data[22] << 8) | data[23];
+
+  function readStr(absPos) {
+    const len = (data[absPos] << 8) | data[absPos+1];
+    return new TextDecoder().decode(data.slice(absPos+2, absPos+2+len));
+  }
+
+  return {
+    razon_social:        readStr(strOffsets[0]),
+    rfc:                 readStr(strOffsets[1]),
+    tipo_sociedad:       readStr(strOffsets[2]),
+    estatus:             readStr(strOffsets[3]),
+    representante_legal: readStr(strOffsets[4]),
+    domicilio_fiscal:    readStr(strOffsets[5]),
+    reparto_acciones:    readStr(strOffsets[6]),
+    numero_notaria:      Number(notaria),
+    permiso_uso_nombre:  readStr(permisoOffset),
+  };
+}
+
+async function consultarEmpresa() {
+  const expediente = document.getElementById('buscar-expediente').value.trim();
+  if (!expediente) return showAlert('consulta-alert', 'error', 'Ingresa un número de expediente.');
+  clearAlert('consulta-alert');
+  document.getElementById('consulta-result').style.display = 'none';
+  document.getElementById('btn-buscar-text').textContent = 'Buscando...';
+  document.getElementById('spinner-buscar').style.display = 'inline-block';
+  try {
+    const algodClient = new algosdk.Algodv2('', ALGOD_SERVER, '');
+    const boxData = await algodClient.getApplicationBoxByName(APP_ID, buildBoxKey(expediente)).do();
+    renderResult(decodeEmpresa(boxData.value), expediente);
+  } catch(e) {
+    if (e.status === 404 || (e.message && e.message.includes('404'))) {
+      showAlert('consulta-alert', 'error', `No se encontró ninguna empresa con el expediente <strong>${expediente}</strong>.`);
+    } else {
+      showAlert('consulta-alert', 'error', 'Error: ' + (e.message || e));
+    }
+  } finally {
+    document.getElementById('btn-buscar-text').textContent = 'Buscar';
+    document.getElementById('spinner-buscar').style.display = 'none';
+  }
+}
+
+function renderResult(e, expediente) {
+  const statusBadge = `<span class="badge badge-${e.estatus === 'activa' ? 'active' : 'pending'}">${e.estatus.toUpperCase()}</span>`;
+  const rfcVal = e.rfc ? e.rfc : `<span class="badge badge-pending">Pendiente de tramitar</span>`;
+  const rows = [
+    ['Expediente', expediente],
+    ['Razón social', e.razon_social],
+    ['Tipo de sociedad', e.tipo_sociedad],
+    ['Estatus', statusBadge],
+    ['RFC', rfcVal],
+    ['Representante legal', e.representante_legal],
+    ['Domicilio fiscal', e.domicilio_fiscal],
+    ['Reparto de acciones', e.reparto_acciones],
+    ['Número de notaría', e.numero_notaria],
+    ['Permiso uso de nombre', e.permiso_uso_nombre || '—'],
+  ];
+  document.getElementById('result-grid').innerHTML = rows.map(([l,v]) =>
+    `<div class="result-row"><div class="result-label">${l}</div><div class="result-value">${v}</div></div>`
+  ).join('');
+  document.getElementById('lora-link').href = `${LORA_BASE}/application/${APP_ID}`;
+  document.getElementById('consulta-result').style.display = 'block';
+}
+
+async function conectarWallet() {
+  showAlert('registro-alert', 'info', 'Iniciando conexión...');
+  try {
+    const PWC = window.PeraWalletConnect || window['@perawallet/connect']?.PeraWalletConnect;
+    if (!PWC) throw new Error('Librería no cargada');
+    peraWallet = new PWC({ network: 'testnet' });
+    const accounts = await peraWallet.connect();
+    walletAddress = accounts[0];
+    document.getElementById('wallet-dot').classList.add('connected');
+    document.getElementById('wallet-status').textContent = 'Wallet conectada';
+    document.getElementById('wallet-address').textContent = walletAddress.slice(0,8) + '...' + walletAddress.slice(-8);
+    document.getElementById('btn-wallet').textContent = 'Desconectar';
+    document.getElementById('btn-wallet').onclick = desconectarWallet;
+    document.getElementById('btn-registrar').disabled = false;
+    clearAlert('registro-alert');
+  } catch(e) {
+    showAlert('registro-alert', 'error', 'Error conectando wallet: ' + (e.message || e));
+  }
+}
+
+function desconectarWallet() {
+  walletAddress = null;
+  if (peraWallet) peraWallet.disconnect();
+  document.getElementById('wallet-dot').classList.remove('connected');
+  document.getElementById('wallet-status').textContent = 'Sin wallet conectada';
+  document.getElementById('wallet-address').textContent = 'Conecta tu Pera Wallet para continuar';
+  document.getElementById('btn-wallet').textContent = 'Conectar Pera Wallet';
+  document.getElementById('btn-wallet').onclick = conectarWallet;
+  document.getElementById('btn-registrar').disabled = true;
+}
+
+async function registrarEmpresa() {
+  if (!walletAddress) return showAlert('registro-alert', 'error', 'Conecta tu wallet primero.');
+  const expediente = document.getElementById('f-expediente').value.trim();
+  const razon      = document.getElementById('f-razon').value.trim();
+  const tipo       = document.getElementById('f-tipo').value;
+  const rep        = document.getElementById('f-representante').value.trim();
+  const dom        = document.getElementById('f-domicilio').value.trim();
+  const acc        = document.getElementById('f-acciones').value.trim();
+  const not        = parseInt(document.getElementById('f-notaria').value);
+  const per        = document.getElementById('f-permiso').value.trim();
+  if (!expediente||!razon||!tipo||!rep||!dom||!acc||!not||!per)
+    return showAlert('registro-alert', 'error', 'Completa todos los campos requeridos.');
+  showAlert('registro-alert', 'info', 'Preparando transacción... Aprueba en tu Pera Wallet.');
+  document.getElementById('btn-reg-text').textContent = 'Procesando...';
+  document.getElementById('spinner-reg').style.display = 'inline-block';
+  document.getElementById('btn-registrar').disabled = true;
+  try {
+    const algodClient = new algosdk.Algodv2('', ALGOD_SERVER, '');
+    const params = await algodClient.getTransactionParams().do();
+    const selector = new Uint8Array([0xec, 0x63, 0xd2, 0x26]);
+    const args = [selector, encStr(expediente), encStr(razon), encStr(tipo), encStr(rep), encStr(dom), encStr(acc), encU64(not), encStr(per)];
+    const txn = algosdk.makeApplicationCallTxnFromObject({
+      from: walletAddress,
+      appIndex: APP_ID,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC,
+      appArgs: args,
+      boxes: [{ appIndex: 0, name: buildBoxKey(expediente) }],
+      suggestedParams: { ...params, fee: 3000, flatFee: true },
+    });
+    const signed = await peraWallet.signTransaction([[{ txn, signers: [walletAddress] }]]);
+    const { txId } = await algodClient.sendRawTransaction(signed).do();
+    await algosdk.waitForConfirmation(algodClient, txId, 5);
+    document.getElementById('registro-result-content').innerHTML = `
+      <div class="alert alert-success" style="margin-bottom:1rem">✅ Empresa registrada exitosamente en la blockchain.</div>
+      <div class="result-grid">
+        <div class="result-row"><div class="result-label">Expediente</div><div class="result-value">${expediente}</div></div>
+        <div class="result-row"><div class="result-label">Razón social</div><div class="result-value">${razon}</div></div>
+        <div class="result-row"><div class="result-label">Transaction ID</div><div class="result-value">
+          <a class="tx-link" href="${LORA_BASE}/transaction/${txId}" target="_blank">${txId.slice(0,16)}...${txId.slice(-8)} →</a>
+        </div></div>
+      </div>`;
+    document.getElementById('registro-result').style.display = 'block';
+    clearAlert('registro-alert');
+    cargarTotal();
+  } catch(e) {
+    showAlert('registro-alert', 'error', 'Error: ' + (e.message || e));
+  } finally {
+    document.getElementById('btn-reg-text').textContent = 'Registrar en blockchain';
+    document.getElementById('spinner-reg').style.display = 'none';
+    document.getElementById('btn-registrar').disabled = false;
+  }
+}
+
+function encStr(str) {
+  const b = new TextEncoder().encode(str);
+  const r = new Uint8Array(2 + b.length);
+  r[0] = (b.length >> 8) & 0xff; r[1] = b.length & 0xff;
+  r.set(b, 2); return r;
+}
+function encU64(num) {
+  const buf = new Uint8Array(8); let n = BigInt(num);
+  for (let i = 7; i >= 0; i--) { buf[i] = Number(n & 0xffn); n >>= 8n; }
+  return buf;
+}
+function limpiarForm() {
+  ['f-expediente','f-razon','f-representante','f-domicilio','f-acciones','f-notaria','f-permiso'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-tipo').value = '';
+}
+
+cargarTotal();
+</script>
+</body>
+</html>
